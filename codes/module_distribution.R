@@ -19,7 +19,7 @@ distribution_ui <- function(id) {
 
 distribution_server <- function(input, output, session, data_ds_vars) {
   
-  binned_vars <- list()
+  deciles_g <- reactiveValues()
   
   numeric_vars <- reactive({
     validate(need(data_ds_vars, message = FALSE))
@@ -35,22 +35,26 @@ distribution_server <- function(input, output, session, data_ds_vars) {
   })
   
   observeEvent(numeric_vars(), {
-    for (name in names(binned_vars)) {
-      binned_vars[name] <<- NULL
+    for (name in names(deciles_g)) {
+      deciles_g[[name]] <<- NULL
     }
   }, priority = 10)
   
   observeEvent(input$varlist_distribution, {
     validate(need(data_ds_vars, message = FALSE))
     req(input$varlist_distribution)
-    binned_vars[[input$varlist_distribution]] <<-
+    deciles_g[[input$varlist_distribution]] <<-
       bin_numeric(data_ds_vars$data_ds(), input$varlist_distribution)
     
     output$binned_distribution <- renderTable({
-      binned_vars[[input$varlist_distribution]]
+      deciles_g[[input$varlist_distribution]]
     })
   })
   
-  binned_vars
+  deciles <- reactive({
+    Filter(Negate(is.null), reactiveValuesToList(deciles_g))
+  })
+  
+  deciles
   
 }
