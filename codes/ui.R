@@ -8,7 +8,7 @@ ui <- shinyUI(
     ),
     tabPanel(
       "Distribution",
-      helpText("Distribution")
+      distribution_ui("distribution_module")
     )
   )
 )
