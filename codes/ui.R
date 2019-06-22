@@ -14,6 +14,8 @@ ui <- shinyUI(
       "Save/Restore",
       downloadButton("save_state", "Save to file"),
       br(),
+      br(),
+      br(),
       fileInput("restore_state", "Restore from file",
                 placeholder = ".rds file")
     )
