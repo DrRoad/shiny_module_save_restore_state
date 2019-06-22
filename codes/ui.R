@@ -9,6 +9,10 @@ ui <- shinyUI(
     tabPanel(
       "Distribution",
       distribution_ui("distribution_module")
+    ),
+    tabPanel(
+      "Save/Restore",
+      downloadButton("save_state", "Save to File")
     )
   )
 )
