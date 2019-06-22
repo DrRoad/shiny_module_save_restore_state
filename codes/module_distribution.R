@@ -1,4 +1,5 @@
 bin_numeric <- function(ds, nvar) {
+  
   nvar_v <- ds[, nvar]
   nvar_v <- nvar_v[!is.na(nvar_v)]
   nvar_q <- quantile(nvar_v, probs = seq(.1, 1, .1))
@@ -7,14 +8,17 @@ bin_numeric <- function(ds, nvar) {
   nvar_d <- data.frame(table(nvar_g))
   names(nvar_d) <- c("Bin", "Frequency")
   nvar_d
+  
 }
 
 distribution_ui <- function(id) {
+  
   ns <- NS(id)
   tagList(
     selectInput(ns("varlist_distribution"), "Select variable", choices = NULL),
     tableOutput(ns("binned_distribution"))
   )
+  
 }
 
 distribution_server <- function(input, output, session, data_ds_vars) {

@@ -12,7 +12,10 @@ ui <- shinyUI(
     ),
     tabPanel(
       "Save/Restore",
-      downloadButton("save_state", "Save to File")
+      downloadButton("save_state", "Save to file"),
+      br(),
+      fileInput("restore_state", "Restore from file",
+                placeholder = ".rds file")
     )
   )
 )
