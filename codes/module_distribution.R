@@ -23,8 +23,10 @@ distribution_ui <- function(id) {
 
 distribution_server <- function(input, output, session, data_ds_vars) {
   
+  # Global reactive values to store deciles
   deciles_g <- reactiveValues()
   
+  # Numeric variables
   numeric_vars <- reactive({
     validate(need(data_ds_vars, message = FALSE))
     data_vars <- data_ds_vars$data_vars()
@@ -33,32 +35,39 @@ distribution_server <- function(input, output, session, data_ds_vars) {
     data_vars$vnames
   })
   
+  # Update choice of variables for which deciles can be created
   observe({
     updateSelectInput(session, "varlist_distribution", "Select variable",
                       choices = numeric_vars())
   })
   
+  # If the list of variables change, reset everything to NULL
   observeEvent(numeric_vars(), {
     for (name in names(deciles_g)) {
       deciles_g[[name]] <<- NULL
     }
   }, priority = 10)
   
+  # Calculate deciles whenever a new variable selection is made and display
   observeEvent(input$varlist_distribution, {
     validate(need(data_ds_vars, message = FALSE))
     req(input$varlist_distribution)
-    deciles_g[[input$varlist_distribution]] <<-
-      bin_numeric(data_ds_vars$data_ds(), input$varlist_distribution)
+    if (is.null(deciles_g[[input$varlist_distribution]])) {
+      deciles_g[[input$varlist_distribution]] <<-
+        bin_numeric(data_ds_vars$data_ds(), input$varlist_distribution)
+    }
     
     output$binned_distribution <- renderTable({
       deciles_g[[input$varlist_distribution]]
     })
   })
   
+  # Store deciles as a list
   deciles <- reactive({
     Filter(Negate(is.null), reactiveValuesToList(deciles_g))
   })
   
+  # Return
   deciles
   
 }
