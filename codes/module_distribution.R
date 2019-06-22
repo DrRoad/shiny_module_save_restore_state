@@ -21,7 +21,8 @@ distribution_ui <- function(id) {
   
 }
 
-distribution_server <- function(input, output, session, data_ds_vars) {
+distribution_server <- function(input, output, session, data_ds_vars,
+                                restored_decile) {
   
   # Global reactive values to store deciles
   deciles_g <- reactiveValues()
@@ -40,7 +41,7 @@ distribution_server <- function(input, output, session, data_ds_vars) {
   observe({
     updateSelectInput(session, "varlist_distribution", "Select variable",
                       choices = numeric_vars())
-  })
+  }, priority = 20)
   
   # If the list of variables change, reset everything to NULL
   observeEvent(numeric_vars(), {
@@ -54,8 +55,14 @@ distribution_server <- function(input, output, session, data_ds_vars) {
     validate(need(data_ds_vars, message = FALSE))
     req(input$varlist_distribution)
     if (is.null(deciles_g[[input$varlist_distribution]])) {
-      deciles_g[[input$varlist_distribution]] <<-
-        bin_numeric(data_ds_vars$data_ds(), input$varlist_distribution)
+      if (!is.null(restored_decile()) &&
+          !is.null(restored_decile()[[input$varlist_distribution]])) {
+        deciles_g[[input$varlist_distribution]] <-
+          restored_decile()[[input$varlist_distribution]]
+      } else {
+        deciles_g[[input$varlist_distribution]] <<-
+          bin_numeric(data_ds_vars$data_ds(), input$varlist_distribution)
+      }
     }
     
     output$binned_distribution <- renderTable({

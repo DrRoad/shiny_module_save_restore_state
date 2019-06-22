@@ -1,11 +1,12 @@
 server <- function(input, output, session) {
   
   restored_ds <- reactiveVal()
+  restored_decile <- reactiveVal()
   
   # Call modules
   data_ds_vars <- callModule(data_server, "data_module", restored_ds)
   distributions <- callModule(distribution_server, "distribution_module",
-                              data_ds_vars)
+                              data_ds_vars, restored_decile)
   
   # Save state
   output$save_state <- downloadHandler(
@@ -41,6 +42,7 @@ server <- function(input, output, session) {
   observeEvent(restored_state(), {
     rs <- restored_state()
     restored_ds(rs$data_ds)
+    restored_decile(rs$deciles)
   })
 
 }
