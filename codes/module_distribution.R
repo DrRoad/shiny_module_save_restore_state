@@ -21,7 +21,8 @@ distribution_ui <- function(id) {
   
 }
 
-distribution_server <- function(input, output, session, data_ds_vars) {
+distribution_server <- function(input, output, session, data_ds_vars,
+                                restored_data_vars, restored_deciles) {
   
   # Global reactive values to store deciles
   deciles_g <- reactiveValues()
@@ -29,10 +30,15 @@ distribution_server <- function(input, output, session, data_ds_vars) {
   # Numeric variables
   numeric_vars <- reactive({
     validate(need(data_ds_vars, message = FALSE))
-    data_vars <- data_ds_vars$data_vars()
-    data_vars <- data_vars[data_vars$vtypes == "numeric" |
-                             data_vars$vtypes == "integer", ]
-    data_vars$vnames
+    if (!is.null(restored_data_vars())) {
+      vnames <- restored_data_vars()$vnames
+    } else {
+      data_vars <- data_ds_vars$data_vars()
+      data_vars <- data_vars[data_vars$vtypes == "numeric" |
+                               data_vars$vtypes == "integer", ]
+      vnames <- data_vars$vnames
+    }
+    vnames
   })
   
   # Update choice of variables for which deciles can be created

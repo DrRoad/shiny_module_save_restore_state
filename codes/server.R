@@ -1,11 +1,16 @@
 server <- function(input, output, session) {
   
   restored_ds <- reactiveVal()
+  restored_data_vars <- reactiveVal()
+  restored_deciles <- reactiveVal()
   
+  # Call modules
   data_ds_vars <- callModule(data_server, "data_module", restored_ds)
   distributions <- callModule(distribution_server, "distribution_module",
-                              data_ds_vars)
+                              data_ds_vars, restored_data_vars,
+                              restored_deciles)
   
+  # Save state
   output$save_state <- downloadHandler(
     filename = function() {
       paste0("dd-", Sys.Date(), ".rds")
@@ -23,19 +28,23 @@ server <- function(input, output, session) {
     } 
   )
   
+  # Reactive restore file
   restore_file <- reactive({
     validate(need(input$restore_state, message = FALSE))
     input$restore_state
   })
   
+  # Reactive to store restored information
   restored_state <- reactive({
     rs <- readRDS(restore_file()$datapath)
     rs
   })
   
+  # Restore state
   observeEvent(restored_state(), {
     rs <- restored_state()
     restored_ds(rs$data_ds)
+    restored_data_vars(rs$data_vars)
   })
 
 }
